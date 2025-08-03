@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>Atul's Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen" class="screen active">
+        <div class="welcome-container">
+            <h1 class="main-title">Welcome to</h1>
+            <h2 class="game-title">Atul's Tic-Tac-Toe</h2>
+            <div class="subtitle">Ultimate Gaming Experience</div>
+            
+            <div class="game-modes">
+                <button class="mode-btn single-game" onclick="startSingleGame()">
+                    <div class="btn-icon">🎯</div>
+                    <div class="btn-text">Single Game</div>
+                    <div class="btn-desc">Quick match</div>
+                </button>
+                
+                <button class="mode-btn series-game" onclick="startSeries()">
+                    <div class="btn-icon">🏆</div>
+                    <div class="btn-text">Series Mode</div>
+                    <div class="btn-desc">Best of 5 games</div>
+                </button>
+            </div>
+            
+            <div class="credits">
+                <p>Designed with ❤️ for the ultimate gaming experience</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="game-header">
+                <button class="back-btn" onclick="goHome()">← Back to Menu</button>
+                <div class="game-info">
+                    <div id="current-player">Player X's Turn</div>
+                    <div id="game-mode-display">Single Game</div>
+                </div>
+            </div>
+
+            <!-- Series Progress (hidden for single game) -->
+            <div id="series-progress" class="series-progress hidden">
+                <h3>Series Progress (Best of 5)</h3>
+                <div class="score-container">
+                    <div class="player-score">
+                        <span class="player-label">Player X</span>
+                        <span id="score-x" class="score">0</span>
+                    </div>
+                    <div class="vs">VS</div>
+                    <div class="player-score">
+                        <span class="player-label">Player O</span>
+                        <span id="score-o" class="score">0</span>
+                    </div>
+                </div>
+                <div id="game-counter">Game 1 of 5</div>
+            </div>
+
+            <!-- Game Board -->
+            <div class="board-container">
+                <div id="game-board" class="game-board">
+                    <div class="cell" data-index="0"></div>
+                    <div class="cell" data-index="1"></div>
+                    <div class="cell" data-index="2"></div>
+                    <div class="cell" data-index="3"></div>
+                    <div class="cell" data-index="4"></div>
+                    <div class="cell" data-index="5"></div>
+                    <div class="cell" data-index="6"></div>
+                    <div class="cell" data-index="7"></div>
+                    <div class="cell" data-index="8"></div>
+                </div>
+            </div>
+
+            <div class="game-controls">
+                <button id="reset-btn" class="control-btn" onclick="resetGame()">Reset Game</button>
+                <button id="new-series-btn" class="control-btn hidden" onclick="newSeries()">New Series</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div id="result-modal" class="modal hidden">
+        <div class="modal-content">
+            <div id="result-icon" class="result-icon"></div>
+            <div id="result-text" class="result-text"></div>
+            <div id="result-details" class="result-details"></div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" id="continue-btn" onclick="continueGame()">Continue</button>
+                <button class="modal-btn secondary" onclick="goHome()">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Winner Celebration Modal -->
+    <div id="winner-modal" class="modal hidden">
+        <div class="modal-content celebration">
+            <div class="celebration-icon">🎉</div>
+            <div id="winner-text" class="winner-text"></div>
+            <div id="final-score" class="final-score"></div>
+            <div class="celebration-message">Congratulations!</div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" onclick="newSeries()">New Series</button>
+                <button class="modal-btn secondary" onclick="goHome()">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
