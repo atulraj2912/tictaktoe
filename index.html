@@ -11,8 +11,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Apple-style Namaste Greeting -->
+    <div id="namaste-screen" class="namaste-screen active">
+        <div class="namaste-background"></div>
+        <div class="floating-elements">
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+            <div class="floating-element"></div>
+        </div>
+        <div class="namaste-container">
+            <div class="namaste-text">नमस्ते</div>
+        </div>
+    </div>
+
     <!-- Welcome Screen -->
-    <div id="welcome-screen" class="screen active">
+    <div id="welcome-screen" class="screen">
         <div class="welcome-container">
             <h1 class="main-title">Welcome to</h1>
             <h2 class="game-title">Atul's Tic-Tac-Toe</h2>
@@ -111,6 +126,19 @@
             <div class="modal-buttons">
                 <button class="modal-btn primary" onclick="newSeries()">New Series</button>
                 <button class="modal-btn secondary" onclick="goHome()">Main Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Choose Starting Player Modal -->
+    <div id="starting-player-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="starting-player-icon">🎲</div>
+            <div class="starting-player-title">Who goes first?</div>
+            <div id="game-number-display" class="game-number-text">Game 1 of 5</div>
+            <div class="modal-buttons">
+                <button class="modal-btn primary" onclick="chooseStartingPlayer('X')">Player X</button>
+                <button class="modal-btn primary" onclick="chooseStartingPlayer('O')">Player O</button>
             </div>
         </div>
     </div>

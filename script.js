@@ -142,15 +142,20 @@ class TicTacToeGame {
         
         this.updateSeriesDisplay();
         
-        // Check if series is complete
-        if (this.currentGame >= this.maxGames || this.seriesScore.X > 2 || this.seriesScore.O > 2) {
-            this.showSeriesWinner();
+        // Check if series is complete after this game
+        const isSeriesComplete = this.currentGame >= this.maxGames || 
+                                this.seriesScore.X > Math.floor(this.maxGames / 2) || 
+                                this.seriesScore.O > Math.floor(this.maxGames / 2);
+        
+        if (isSeriesComplete) {
+            // Show game result first, then series winner
+            this.showGameResult(result, true, true); // true for isSeries, true for isLastGame
         } else {
-            this.showGameResult(result, true);
+            this.showGameResult(result, true, false); // true for isSeries, false for isLastGame
         }
     }
     
-    showGameResult(result, isSeries = false) {
+    showGameResult(result, isSeries = false, isLastGame = false) {
         const modal = document.getElementById('result-modal');
         const resultIcon = document.getElementById('result-icon');
         const resultText = document.getElementById('result-text');
@@ -161,19 +166,27 @@ class TicTacToeGame {
             resultIcon.textContent = '🎉';
             resultText.textContent = `Player ${this.currentPlayer} Wins!`;
             resultDetails.textContent = isSeries ? 
-                `Game ${this.currentGame} completed` : 
+                `Game ${this.currentGame} completed${isLastGame ? ' - Series Finished!' : ''}` : 
                 'Congratulations on your victory!';
         } else {
             resultIcon.textContent = '🤝';
             resultText.textContent = "It's a Draw!";
             resultDetails.textContent = isSeries ? 
-                `Game ${this.currentGame} ended in a tie` : 
+                `Game ${this.currentGame} ended in a tie${isLastGame ? ' - Series Finished!' : ''}` : 
                 'Good game! Try again!';
         }
         
         if (isSeries) {
-            continueBtn.textContent = 'Next Game';
-            continueBtn.onclick = () => this.nextSeriesGame();
+            if (isLastGame) {
+                continueBtn.textContent = 'View Series Results';
+                continueBtn.onclick = () => {
+                    this.hideModals();
+                    this.showSeriesWinner();
+                };
+            } else {
+                continueBtn.textContent = 'Next Game';
+                continueBtn.onclick = () => this.nextSeriesGame();
+            }
         } else {
             continueBtn.textContent = 'Play Again';
             continueBtn.onclick = () => this.resetGame();
@@ -206,9 +219,22 @@ class TicTacToeGame {
     
     nextSeriesGame() {
         this.currentGame++;
-        this.resetBoard();
-        this.updateSeriesDisplay();
-        this.hideModals();
+        
+        // Check if we should end the series after incrementing
+        const isSeriesComplete = this.currentGame > this.maxGames || 
+                                this.seriesScore.X > Math.floor(this.maxGames / 2) || 
+                                this.seriesScore.O > Math.floor(this.maxGames / 2);
+        
+        if (isSeriesComplete) {
+            this.hideModals();
+            this.showSeriesWinner();
+        } else {
+            this.resetBoard();
+            this.updateSeriesDisplay();
+            this.hideModals();
+            // Show starting player selection for the next game
+            this.showStartingPlayerModal();
+        }
     }
     
     resetGame() {
@@ -219,7 +245,13 @@ class TicTacToeGame {
     resetBoard() {
         this.board = Array(9).fill('');
         this.currentPlayer = 'X';
-        this.gameActive = true;
+        
+        // For series mode, don't activate the game until starting player is chosen
+        if (this.gameMode === 'series') {
+            this.gameActive = false;
+        } else {
+            this.gameActive = true;
+        }
         
         // Clear board display
         document.querySelectorAll('.cell').forEach(cell => {
@@ -235,14 +267,19 @@ class TicTacToeGame {
         this.gameMode = 'series';
         this.seriesScore = { X: 0, O: 0 };
         this.currentGame = 1;
+        this.hideModals();
         this.resetBoard();
         this.updateSeriesDisplay();
-        this.hideModals();
         
         // Show series progress
         document.getElementById('series-progress').classList.remove('hidden');
         document.getElementById('new-series-btn').classList.remove('hidden');
         document.getElementById('game-mode-display').textContent = 'Series Mode (Best of 5)';
+        
+        // Show starting player selection for the first game
+        setTimeout(() => {
+            this.showStartingPlayerModal();
+        }, 100);
     }
     
     updateDisplay() {
@@ -264,6 +301,22 @@ class TicTacToeGame {
     hideModals() {
         document.getElementById('result-modal').classList.add('hidden');
         document.getElementById('winner-modal').classList.add('hidden');
+        document.getElementById('starting-player-modal').classList.add('hidden');
+    }
+    
+    showStartingPlayerModal() {
+        const modal = document.getElementById('starting-player-modal');
+        const gameNumberDisplay = document.getElementById('game-number-display');
+        
+        gameNumberDisplay.textContent = `Game ${this.currentGame} of ${this.maxGames}`;
+        modal.classList.remove('hidden');
+    }
+    
+    setStartingPlayer(player) {
+        this.currentPlayer = player;
+        this.gameActive = true;
+        this.updateDisplay();
+        document.getElementById('starting-player-modal').classList.add('hidden');
     }
     
     addClickEffect(cell) {
@@ -332,24 +385,60 @@ function goHome() {
     showScreen('welcome-screen');
     if (game) {
         game.hideModals();
+        
+        // Clear any lingering animations or effects
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.style.animation = '';
+            cell.style.transform = '';
+        });
     }
 }
 
 function startSingleGame() {
     showScreen('game-screen');
+    
+    // Create fresh game instance
     game = new TicTacToeGame();
     game.gameMode = 'single';
     
-    // Hide series elements
+    // Ensure complete UI reset
+    game.resetBoard();
+    game.hideModals();
+    
+    // Hide series elements and reset UI
     document.getElementById('series-progress').classList.add('hidden');
     document.getElementById('new-series-btn').classList.add('hidden');
     document.getElementById('game-mode-display').textContent = 'Single Game';
+    
+    // Reset any lingering visual effects
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+        cell.style.animation = '';
+        cell.style.transform = '';
+    });
+    
+    // Update current player display
+    game.updateDisplay();
 }
 
 function startSeries() {
     showScreen('game-screen');
+    
+    // Create fresh game instance
     game = new TicTacToeGame();
     game.newSeries();
+    
+    // Ensure complete reset
+    game.hideModals();
+    
+    // Reset any lingering visual effects
+    document.querySelectorAll('.cell').forEach(cell => {
+        cell.textContent = '';
+        cell.className = 'cell';
+        cell.style.animation = '';
+        cell.style.transform = '';
+    });
 }
 
 function resetGame() {
@@ -447,6 +536,21 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
         }
     }, { passive: false });
+    
+    // Apple-style Namaste screen transition
+    setTimeout(() => {
+        const namasteScreen = document.getElementById('namaste-screen');
+        const welcomeScreen = document.getElementById('welcome-screen');
+        
+        // Fade out namaste screen
+        namasteScreen.classList.add('fade-out');
+        
+        // After fade out, show welcome screen
+        setTimeout(() => {
+            namasteScreen.style.display = 'none';
+            welcomeScreen.classList.add('active');
+        }, 1000);
+    }, 3000); // Show namaste for 3 seconds
 });
 
 function createSparkle(x, y) {
@@ -492,3 +596,10 @@ document.head.appendChild(sparkleStyle);
 // Add some initial body styling
 document.body.style.opacity = '0';
 document.body.style.transition = 'opacity 0.5s ease-in';
+
+// Global function for choosing starting player
+function chooseStartingPlayer(player) {
+    if (game) {
+        game.setStartingPlayer(player);
+    }
+}
